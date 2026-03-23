@@ -26,6 +26,7 @@ import {
   Briefcase,
   StickyNote,
 } from 'lucide-react';
+import { taskLabel } from '@/lib/tasks';
 
 function SkeletonRow() {
   return (
@@ -72,10 +73,10 @@ function TaskBreakdownBar({ breakdown }: { breakdown: Record<string, number> }) 
         ))}
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1">
-        {Object.entries(breakdown).map(([task, hrs], i) => (
-          <div key={task} className="flex items-center gap-1.5 text-xs">
-            <div className={`w-2 h-2 rounded-full ${COLOURS[i % COLOURS.length]}`} />
-            <span className="text-muted-foreground">{task}</span>
+        {Object.entries(breakdown).map(([key, hrs], i) => (
+          <div key={key} className="flex items-center gap-1.5 text-xs">
+            <div className={`w-2 h-2 rounded-full shrink-0 ${COLOURS[i % COLOURS.length]}`} />
+            <span className="font-mono text-muted-foreground">{taskLabel(key)}</span>
             <span className="font-semibold">{hrs}h</span>
           </div>
         ))}
@@ -177,7 +178,7 @@ export default function ManagerTimesheets() {
 
   const { data: workers, isLoading: workersLoading } = useListWorkers();
   const { data: timesheets, isLoading: timesheetsLoading } = useListTimesheets({
-    workerId: selectedWorkerId,
+    ...(selectedWorkerId !== null ? { workerId: selectedWorkerId } : {}),
     weekStart: weekStartStr,
     weekEnd: weekEndStr,
   });
@@ -347,11 +348,11 @@ export default function ManagerTimesheets() {
                               </div>
                               <div className="col-span-2">
                                 <p className="text-xs text-muted-foreground mb-1">Tasks</p>
-                                <p className="text-sm truncate">
+                                <p className="text-sm truncate font-mono text-xs">
                                   {entry.taskBreakdown
-                                    ? Object.entries(JSON.parse(entry.taskBreakdown))
-                                        .map(([k, v]) => `${k} (${v}h)`)
-                                        .join(', ')
+                                    ? Object.entries(JSON.parse(entry.taskBreakdown) as Record<string, number>)
+                                        .map(([k, v]) => `${taskLabel(k)} (${v}h)`)
+                                        .join('  ·  ')
                                     : 'General'}
                                 </p>
                               </div>

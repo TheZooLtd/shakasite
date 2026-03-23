@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { taskLabel } from '@/lib/tasks';
 import { format, startOfWeek, subWeeks, endOfWeek } from 'date-fns';
 import { useListTimesheets, useListWorksites } from '@workspace/api-client-react';
 import { useAppContext } from '@/context/AppContext';
@@ -130,9 +131,9 @@ export default function MyTimesheets() {
                           </div>
                           {Object.keys(breakdown).length > 0 && (
                             <div className="flex flex-wrap gap-1.5 mt-1">
-                              {Object.entries(breakdown).filter(([, h]) => h > 0).map(([task, hrs]) => (
-                                <span key={task} className="text-xs bg-secondary rounded-lg px-2 py-0.5 text-muted-foreground">
-                                  {task}: <span className="text-foreground font-medium">{hrs}h</span>
+                              {Object.entries(breakdown).filter(([, h]) => h > 0).map(([key, hrs]) => (
+                                <span key={key} className="text-xs bg-secondary rounded-lg px-2 py-0.5 font-mono text-primary/80">
+                                  {taskLabel(key)}: <span className="text-foreground font-semibold not-italic">{hrs}h</span>
                                 </span>
                               ))}
                             </div>

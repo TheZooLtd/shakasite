@@ -16,12 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle2, ChevronDown, ChevronRight, Save } from 'lucide-react';
-
-const CATEGORIES = {
-  CONCRETE: ["Concrete", "Formwork", "Reinforcing Supply", "Propping", "Grouting for Steel", "Grouting for Facade", "Tanking & Waterproofing"],
-  CARPENTRY: ["External Walls", "Battens to Precast Panel", "Plate to External Walls", "Soffit Framing & Lining", "Internal Timber Framing", "Timber Wall Linings", "Cladding Substrate", "Roof Framing", "Timber Door Install"],
-  GENERAL: ["Site Cleanup", "Plant Operation", "Safety Inspection", "Other"]
-};
+import { TASK_CATEGORIES } from '@/lib/tasks';
 
 export default function LogTime() {
   const { workerId } = useAppContext();
@@ -207,7 +202,7 @@ export default function LogTime() {
             )}
           </CardHeader>
           <CardContent className="space-y-2 p-2 pt-0">
-            {Object.entries(CATEGORIES).map(([cat, tasks]) => (
+            {Object.entries(TASK_CATEGORIES).map(([cat, tasks]) => (
               <div key={cat} className="border border-border rounded-xl overflow-hidden bg-background">
                 <button 
                   type="button"
@@ -221,16 +216,19 @@ export default function LogTime() {
                 {expandedCat === cat && (
                   <div className="p-4 pt-0 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-4 bg-card/30">
                     {tasks.map(task => (
-                      <div key={task} className="flex items-center justify-between gap-4">
-                        <Label className="text-xs font-medium text-muted-foreground leading-tight flex-1">{task}</Label>
+                      <div key={task.code} className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-mono text-primary/70 leading-none mb-0.5">{task.code}</p>
+                          <Label className="text-xs font-medium text-muted-foreground leading-tight">{task.name}</Label>
+                        </div>
                         <Input 
                           type="number" 
                           step="0.5" 
                           min="0"
-                          className="w-20 h-9 text-right"
+                          className="w-20 h-9 text-right shrink-0"
                           placeholder="0"
-                          value={taskHours[task] || ''}
-                          onChange={(e) => handleTaskHourChange(task, e.target.value)}
+                          value={taskHours[task.code] || ''}
+                          onChange={(e) => handleTaskHourChange(task.code, e.target.value)}
                         />
                       </div>
                     ))}
