@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For page transitions and interactive element animations"
+  "date-fns": "For formatting and parsing dates in timesheets"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to resolve conflicting Tailwind classes"
+  "lucide-react": "Clean, consistent iconography for the UI"
+  "@hookform/resolvers": "Zod validation integration for forms"
+  "react-hook-form": "Performant, flexible and extensible forms"
+  "zod": "Schema validation for forms"
+
+images:
+  - path: "artifacts/shakasite/public/images/auth-bg.png"
+    description: "Dark, abstract, architectural geometric background with subtle neon blue and mint green accent lighting. Evokes modern construction and precision."
+    aspect_ratio: "16:9"
+
+notes:
+  - Using generated hooks from @workspace/api-client-react
+  - App state (role, workerId) is stored in localStorage via a custom context
+  - Using Bricolage Grotesque and Plus Jakarta Sans for a premium structural feel

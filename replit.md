@@ -91,6 +91,17 @@ Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used b
 
 Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
 
+### `artifacts/shakasite` (`@workspace/shakasite`)
+
+Mobile-first construction timesheet web app (React + Vite). Dark charcoal/grey base with pastel accents (mint green, coral, sky blue, amber).
+
+- **Demo Modes**: Worker (Corey Ross-Brown, ID=1) and Manager (Mike Tane, ID=2) — role selector with no login, stored in localStorage
+- **Seed Data**: `POST /api/seed` called automatically on first role selection
+- **Worker Pages**: Dashboard, Log Time (task breakdown by CONCRETE/CARPENTRY/GENERAL categories), My Timesheets (history grouped by week), Settings
+- **Manager Pages**: Dashboard (budget gauges, at-risk alerts), Team Timesheets (sign-off per entry or whole week), Jobs & Budgets (budget bars + milestones), Messages (compose to workers), Export (PDF/Excel format picker)
+- **AppContext**: manages `role` and `workerId` state via localStorage keys `shakasite_role`, `shakasite_workerId`
+- Entry: `src/main.tsx`, App: `src/App.tsx`, Context: `src/context/AppContext.tsx`
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.

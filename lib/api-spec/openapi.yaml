@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: ShakaSite Construction Timesheet API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: workers
+    description: Worker operations
+  - name: worksites
+    description: Worksite operations
+  - name: jobs
+    description: Job and project operations
+  - name: timesheets
+    description: Timesheet entry operations
+  - name: messages
+    description: Messaging operations
+  - name: exports
+    description: Export operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +35,506 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /workers:
+    get:
+      operationId: listWorkers
+      tags: [workers]
+      summary: List all workers
+      responses:
+        "200":
+          description: List of workers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Worker"
+    post:
+      operationId: createWorker
+      tags: [workers]
+      summary: Create a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkerBody"
+      responses:
+        "201":
+          description: Worker created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+
+  /workers/{id}:
+    get:
+      operationId: getWorker
+      tags: [workers]
+      summary: Get a worker
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Worker found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateWorker
+      tags: [workers]
+      summary: Update a worker
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateWorkerBody"
+      responses:
+        "200":
+          description: Worker updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+
+  /worksites:
+    get:
+      operationId: listWorksites
+      tags: [worksites]
+      summary: List all worksites
+      responses:
+        "200":
+          description: List of worksites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Worksite"
+    post:
+      operationId: createWorksite
+      tags: [worksites]
+      summary: Create a worksite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorksiteBody"
+      responses:
+        "201":
+          description: Worksite created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worksite"
+
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List all jobs
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateJobBody"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get a job with milestones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Job found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateJobBody"
+      responses:
+        "200":
+          description: Job updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}/milestones:
+    get:
+      operationId: listJobMilestones
+      tags: [jobs]
+      summary: List milestones for a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of milestones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Milestone"
+    post:
+      operationId: createJobMilestone
+      tags: [jobs]
+      summary: Create a milestone for a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMilestoneBody"
+      responses:
+        "201":
+          description: Milestone created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Milestone"
+
+  /timesheets:
+    get:
+      operationId: listTimesheets
+      tags: [timesheets]
+      summary: List timesheet entries
+      parameters:
+        - name: workerId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: worksiteId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: weekStart
+          in: query
+          schema:
+            type: ["string", "null"]
+            description: ISO date string for start of week filter
+        - name: weekEnd
+          in: query
+          schema:
+            type: ["string", "null"]
+            description: ISO date string for end of week filter
+      responses:
+        "200":
+          description: List of timesheet entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimesheetEntry"
+    post:
+      operationId: createTimesheetEntry
+      tags: [timesheets]
+      summary: Create a timesheet entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTimesheetEntryBody"
+      responses:
+        "201":
+          description: Entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimesheetEntry"
+
+  /timesheets/{id}:
+    get:
+      operationId: getTimesheetEntry
+      tags: [timesheets]
+      summary: Get a timesheet entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimesheetEntry"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateTimesheetEntry
+      tags: [timesheets]
+      summary: Update a timesheet entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTimesheetEntryBody"
+      responses:
+        "200":
+          description: Entry updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimesheetEntry"
+    delete:
+      operationId: deleteTimesheetEntry
+      tags: [timesheets]
+      summary: Delete a timesheet entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Entry deleted
+
+  /timesheets/{id}/signoff:
+    post:
+      operationId: signOffTimesheetEntry
+      tags: [timesheets]
+      summary: Sign off a timesheet entry (manager action)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignOffBody"
+      responses:
+        "200":
+          description: Entry signed off
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimesheetEntry"
+
+  /timesheets/week/signoff:
+    post:
+      operationId: signOffWeek
+      tags: [timesheets]
+      summary: Sign off all entries for a worker's week
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignOffWeekBody"
+      responses:
+        "200":
+          description: Week signed off
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimesheetEntry"
+
+  /messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List messages
+      parameters:
+        - name: toWorkerId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: fromWorkerId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageBody"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  /exports/timesheet:
+    post:
+      operationId: exportTimesheet
+      tags: [exports]
+      summary: Export timesheet as PDF or Excel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportTimesheetBody"
+      responses:
+        "200":
+          description: Export file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportResult"
+
+  /stats/worker/{workerId}:
+    get:
+      operationId: getWorkerStats
+      tags: [workers]
+      summary: Get worker stats for current week
+      parameters:
+        - name: workerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Worker stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerStats"
+
+  /stats/manager:
+    get:
+      operationId: getManagerStats
+      tags: [jobs]
+      summary: Get manager dashboard stats
+      responses:
+        "200":
+          description: Manager dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManagerStats"
+
+  /seed:
+    post:
+      operationId: seedData
+      tags: [health]
+      summary: Seed demo data
+      responses:
+        "200":
+          description: Data seeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeedResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +545,528 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SeedResult:
+      type: object
+      properties:
+        message:
+          type: string
+        seeded:
+          type: boolean
+      required:
+        - message
+        - seeded
+
+    Worker:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+          description: "worker or manager"
+        mobileNumber:
+          type: ["string", "null"]
+        daysPerWeek:
+          type: integer
+        siteManagerId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - role
+        - daysPerWeek
+        - createdAt
+        - updatedAt
+
+    CreateWorkerBody:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        mobileNumber:
+          type: ["string", "null"]
+        daysPerWeek:
+          type: integer
+        siteManagerId:
+          type: ["integer", "null"]
+      required:
+        - name
+        - role
+        - daysPerWeek
+
+    UpdateWorkerBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        mobileNumber:
+          type: ["string", "null"]
+        daysPerWeek:
+          type: ["integer", "null"]
+        siteManagerId:
+          type: ["integer", "null"]
+
+    Worksite:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        address:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - isActive
+        - createdAt
+
+    CreateWorksiteBody:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+      required:
+        - name
+        - isActive
+
+    Job:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        worksiteId:
+          type: integer
+        budgetedHours:
+          type: ["number", "null"]
+        hoursUsed:
+          type: number
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+          description: "active, completed, on_hold"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - worksiteId
+        - hoursUsed
+        - status
+        - createdAt
+
+    JobDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        worksiteId:
+          type: integer
+        budgetedHours:
+          type: ["number", "null"]
+        hoursUsed:
+          type: number
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+        milestones:
+          type: array
+          items:
+            $ref: "#/components/schemas/Milestone"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - worksiteId
+        - hoursUsed
+        - status
+        - milestones
+        - createdAt
+
+    CreateJobBody:
+      type: object
+      properties:
+        name:
+          type: string
+        worksiteId:
+          type: integer
+        budgetedHours:
+          type: ["number", "null"]
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+      required:
+        - name
+        - worksiteId
+
+    UpdateJobBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        budgetedHours:
+          type: ["number", "null"]
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: ["string", "null"]
+
+    Milestone:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        name:
+          type: string
+        hoursAtMilestone:
+          type: ["number", "null"]
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        sortOrder:
+          type: integer
+      required:
+        - id
+        - jobId
+        - name
+        - sortOrder
+
+    CreateMilestoneBody:
+      type: object
+      properties:
+        name:
+          type: string
+        hoursAtMilestone:
+          type: ["number", "null"]
+        sortOrder:
+          type: integer
+      required:
+        - name
+        - sortOrder
+
+    TimesheetEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        workerId:
+          type: integer
+        worksiteId:
+          type: integer
+        jobId:
+          type: ["integer", "null"]
+        date:
+          type: string
+          description: ISO date YYYY-MM-DD
+        startTime:
+          type: ["string", "null"]
+          description: "HH:MM format"
+        finishTime:
+          type: ["string", "null"]
+          description: "HH:MM format"
+        lunchMinutes:
+          type: ["integer", "null"]
+        totalHours:
+          type: ["number", "null"]
+        taskBreakdown:
+          type: ["string", "null"]
+          description: JSON string of task type hours
+        notes:
+          type: ["string", "null"]
+        isSignedOff:
+          type: boolean
+        signedOffBy:
+          type: ["integer", "null"]
+        signedOffAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - workerId
+        - worksiteId
+        - date
+        - isSignedOff
+        - createdAt
+        - updatedAt
+
+    CreateTimesheetEntryBody:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        worksiteId:
+          type: integer
+        jobId:
+          type: ["integer", "null"]
+        date:
+          type: string
+        startTime:
+          type: ["string", "null"]
+        finishTime:
+          type: ["string", "null"]
+        lunchMinutes:
+          type: ["integer", "null"]
+        totalHours:
+          type: ["number", "null"]
+        taskBreakdown:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+      required:
+        - workerId
+        - worksiteId
+        - date
+
+    UpdateTimesheetEntryBody:
+      type: object
+      properties:
+        startTime:
+          type: ["string", "null"]
+        finishTime:
+          type: ["string", "null"]
+        lunchMinutes:
+          type: ["integer", "null"]
+        totalHours:
+          type: ["number", "null"]
+        taskBreakdown:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        jobId:
+          type: ["integer", "null"]
+
+    SignOffBody:
+      type: object
+      properties:
+        signedOffBy:
+          type: integer
+      required:
+        - signedOffBy
+
+    SignOffWeekBody:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        weekStart:
+          type: string
+        signedOffBy:
+          type: integer
+      required:
+        - workerId
+        - weekStart
+        - signedOffBy
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        fromWorkerId:
+          type: integer
+        toWorkerId:
+          type: integer
+        body:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - fromWorkerId
+        - toWorkerId
+        - body
+        - isRead
+        - createdAt
+
+    SendMessageBody:
+      type: object
+      properties:
+        fromWorkerId:
+          type: integer
+        toWorkerId:
+          type: integer
+        body:
+          type: string
+      required:
+        - fromWorkerId
+        - toWorkerId
+        - body
+
+    ExportTimesheetBody:
+      type: object
+      properties:
+        workerId:
+          type: ["integer", "null"]
+        weekStart:
+          type: ["string", "null"]
+        format:
+          type: string
+          description: "pdf or excel"
+      required:
+        - format
+
+    ExportResult:
+      type: object
+      properties:
+        url:
+          type: string
+        filename:
+          type: string
+        format:
+          type: string
+      required:
+        - url
+        - filename
+        - format
+
+    WorkerStats:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        workerName:
+          type: string
+        weeklyHours:
+          type: number
+        submittedDaysThisWeek:
+          type: integer
+        daysPerWeek:
+          type: integer
+        streakDays:
+          type: integer
+        topWorksite:
+          type: ["string", "null"]
+        topTaskType:
+          type: ["string", "null"]
+        missedYesterday:
+          type: boolean
+        recentEntries:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimesheetEntry"
+      required:
+        - workerId
+        - workerName
+        - weeklyHours
+        - submittedDaysThisWeek
+        - daysPerWeek
+        - streakDays
+        - missedYesterday
+        - recentEntries
+
+    ManagerStats:
+      type: object
+      properties:
+        activeJobsCount:
+          type: integer
+        totalWorkersThisWeek:
+          type: integer
+        totalHoursThisWeek:
+          type: number
+        pendingSignoffs:
+          type: integer
+        jobsOverBudget:
+          type: integer
+        jobsAtRisk:
+          type: integer
+          description: Jobs at 70% or more of budget
+        jobSummaries:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobSummary"
+      required:
+        - activeJobsCount
+        - totalWorkersThisWeek
+        - totalHoursThisWeek
+        - pendingSignoffs
+        - jobsOverBudget
+        - jobsAtRisk
+        - jobSummaries
+
+    JobSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        worksiteName:
+          type: string
+        budgetedHours:
+          type: ["number", "null"]
+        hoursUsed:
+          type: number
+        budgetPercent:
+          type: ["number", "null"]
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+        isAtRisk:
+          type: boolean
+        isOverBudget:
+          type: boolean
+        workerCount:
+          type: integer
+      required:
+        - id
+        - name
+        - worksiteName
+        - hoursUsed
+        - status
+        - isAtRisk
+        - isOverBudget
+        - workerCount
