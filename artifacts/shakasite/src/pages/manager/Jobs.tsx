@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useListJobs, useGetJob, useListJobMilestones, useListWorksites } from '@workspace/api-client-react';
+import { useListJobs, useListJobMilestones, useListWorksites, getListJobMilestonesQueryKey } from '@workspace/api-client-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Briefcase, Clock, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Target } from 'lucide-react';
+import { Briefcase, Clock, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -40,7 +39,7 @@ function BudgetBar({ used, budgeted }: { used: number; budgeted: number | null |
 
 function JobCard({ job, worksiteMap }: { job: any; worksiteMap: Record<number, string> }) {
   const [expanded, setExpanded] = useState(false);
-  const { data: milestones = [] } = useListJobMilestones(job.id, { query: { enabled: expanded } });
+  const { data: milestones = [] } = useListJobMilestones(job.id, { query: { enabled: expanded, queryKey: getListJobMilestonesQueryKey(job.id) } });
 
   const pct = job.budgetedHours ? (job.hoursUsed / job.budgetedHours) * 100 : null;
 

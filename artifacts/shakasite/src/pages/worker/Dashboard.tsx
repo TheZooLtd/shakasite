@@ -8,6 +8,7 @@ import {
 import { useAppContext } from '@/context/AppContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, Clock, MapPin, Target, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 

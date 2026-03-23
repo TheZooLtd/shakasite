@@ -13,7 +13,6 @@ import {
   ListJobMilestonesResponse,
   CreateJobMilestoneParams,
   CreateJobMilestoneBody,
-  GetManagerStatsResponse,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -157,7 +156,7 @@ router.get("/stats/manager", async (_req, res): Promise<void> => {
     jobSummaries,
   };
 
-  res.json(GetManagerStatsResponse.parse(stats));
+  res.json(stats);
 });
 
 export default router;

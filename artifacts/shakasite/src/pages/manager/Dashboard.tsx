@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useGetManagerStats } from '@workspace/api-client-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Gauge } from '@/components/ui/gauge';
-import { Users, Clock, AlertTriangle, Briefcase, ChevronRight } from 'lucide-react';
+import { Users, Clock, AlertTriangle, Briefcase, ChevronRight, MapPin } from 'lucide-react';
 import { Link } from 'wouter';
 
 export default function ManagerDashboard() {

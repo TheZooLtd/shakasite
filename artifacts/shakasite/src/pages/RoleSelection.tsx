@@ -14,19 +14,25 @@ export default function RoleSelection() {
   const handleSelectRole = async (role: 'worker' | 'manager') => {
     setIsInitializing(true);
     
-    // Check if we need to seed data
-    if (!workers || workers.length === 0) {
+    let allWorkers = workers;
+
+    // Seed data if not seeded yet
+    if (!allWorkers || allWorkers.length === 0) {
       try {
         await seedMutation.mutateAsync();
-        await refetch();
+        const result = await refetch();
+        allWorkers = result.data;
       } catch (err) {
         console.error("Failed to seed data", err);
       }
     }
 
-    // Set demo IDs: 1 for worker, 2 for manager (assuming seeded data)
+    // Find the correct demo ID by role (first worker or first manager in the seeded data)
+    const matchingWorker = allWorkers?.find(w => w.role === role);
+    const demoId = matchingWorker?.id ?? (role === 'worker' ? 3 : 2);
+
     setTimeout(() => {
-      setWorkerId(role === 'worker' ? 1 : 2);
+      setWorkerId(demoId);
       setRole(role);
       setIsInitializing(false);
     }, 800); // Artificial delay for smooth animation
