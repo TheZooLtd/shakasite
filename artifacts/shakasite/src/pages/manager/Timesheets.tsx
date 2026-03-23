@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ChevronLeft, ChevronRight, CheckCircle2, FileCheck2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getListTimesheetsQueryKey } from '@workspace/api-client-react';
+import type { TimesheetEntry } from '@workspace/api-client-react';
 
 export default function ManagerTimesheets() {
   const { workerId: managerId } = useAppContext();
@@ -78,7 +79,7 @@ export default function ManagerTimesheets() {
     acc[entry.workerId].totalHours += (entry.totalHours || 0);
     if (!entry.isSignedOff) acc[entry.workerId].pending++;
     return acc;
-  }, {} as Record<number, { entries: any[], totalHours: number, pending: number }>);
+  }, {} as Record<number, { entries: TimesheetEntry[], totalHours: number, pending: number }>);
 
   const getWorkerName = (id: number) => workers?.find(w => w.id === id)?.name || `Worker ${id}`;
 

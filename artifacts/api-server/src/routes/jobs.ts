@@ -57,7 +57,12 @@ router.patch("/jobs/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const parsed = UpdateJobBody.safeParse(req.body);
+  // Coerce deadline string to Date before Zod validation (JSON transport sends strings)
+  const body = { ...req.body };
+  if (typeof body.deadline === 'string' && body.deadline) {
+    body.deadline = new Date(body.deadline);
+  }
+  const parsed = UpdateJobBody.safeParse(body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
