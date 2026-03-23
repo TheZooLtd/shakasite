@@ -94,6 +94,13 @@ router.patch("/timesheets/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  // Fetch old entry to compute hoursUsed delta
+  const [oldEntry] = await db.select().from(timesheetEntriesTable).where(eq(timesheetEntriesTable.id, params.data.id));
+  if (!oldEntry) {
+    res.status(404).json({ error: "Timesheet entry not found" });
+    return;
+  }
+
   const updates: Record<string, unknown> = {};
   if (parsed.data.startTime !== undefined) updates.startTime = parsed.data.startTime;
   if (parsed.data.finishTime !== undefined) updates.finishTime = parsed.data.finishTime;
@@ -108,6 +115,32 @@ router.patch("/timesheets/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Timesheet entry not found" });
     return;
   }
+
+  // Reconcile hoursUsed on affected jobs
+  const oldHours = oldEntry.totalHours ?? 0;
+  const newHours = entry.totalHours ?? 0;
+  const oldJobId = oldEntry.jobId;
+  const newJobId = entry.jobId;
+
+  if (oldJobId === newJobId && oldJobId) {
+    // Same job: apply delta
+    const delta = newHours - oldHours;
+    if (delta !== 0) {
+      const [job] = await db.select().from(jobsTable).where(eq(jobsTable.id, oldJobId));
+      if (job) await db.update(jobsTable).set({ hoursUsed: Math.max(0, (job.hoursUsed ?? 0) + delta) }).where(eq(jobsTable.id, oldJobId));
+    }
+  } else {
+    // Job changed: remove hours from old job, add to new job
+    if (oldJobId) {
+      const [oldJob] = await db.select().from(jobsTable).where(eq(jobsTable.id, oldJobId));
+      if (oldJob) await db.update(jobsTable).set({ hoursUsed: Math.max(0, (oldJob.hoursUsed ?? 0) - oldHours) }).where(eq(jobsTable.id, oldJobId));
+    }
+    if (newJobId) {
+      const [newJob] = await db.select().from(jobsTable).where(eq(jobsTable.id, newJobId));
+      if (newJob) await db.update(jobsTable).set({ hoursUsed: (newJob.hoursUsed ?? 0) + newHours }).where(eq(jobsTable.id, newJobId));
+    }
+  }
+
   res.json(UpdateTimesheetEntryResponse.parse(entry));
 });
 
@@ -121,6 +154,11 @@ router.delete("/timesheets/:id", async (req, res): Promise<void> => {
   if (!entry) {
     res.status(404).json({ error: "Timesheet entry not found" });
     return;
+  }
+  // Subtract hours from associated job
+  if (entry.jobId && entry.totalHours) {
+    const [job] = await db.select().from(jobsTable).where(eq(jobsTable.id, entry.jobId));
+    if (job) await db.update(jobsTable).set({ hoursUsed: Math.max(0, (job.hoursUsed ?? 0) - entry.totalHours) }).where(eq(jobsTable.id, entry.jobId));
   }
   res.sendStatus(204);
 });

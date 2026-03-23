@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { db, workersTable, timesheetEntriesTable } from "@workspace/db";
+import { db, workersTable, timesheetEntriesTable, worksitesTable } from "@workspace/db";
 import {
   ListWorkersResponse,
   CreateWorkerBody,
@@ -112,12 +112,18 @@ router.get("/stats/worker/:workerId", async (req, res): Promise<void> => {
   const missedYesterday = !yesterdayEntry && yesterday >= weekStart;
 
   // Top worksite (by hours)
-  const worksiteHours: Record<string, number> = {};
+  const worksiteHours: Record<number, number> = {};
   for (const e of weekEntries) {
-    const key = String(e.worksiteId);
-    worksiteHours[key] = (worksiteHours[key] ?? 0) + (e.totalHours ?? 0);
+    if (e.worksiteId) {
+      worksiteHours[e.worksiteId] = (worksiteHours[e.worksiteId] ?? 0) + (e.totalHours ?? 0);
+    }
   }
   const topWorksiteId = Object.entries(worksiteHours).sort((a, b) => b[1] - a[1])[0]?.[0];
+  let topWorksiteName: string | null = null;
+  if (topWorksiteId) {
+    const [worksite] = await db.select().from(worksitesTable).where(eq(worksitesTable.id, parseInt(topWorksiteId)));
+    topWorksiteName = worksite?.name ?? null;
+  }
 
   // Top task type from breakdowns
   const taskHours: Record<string, number> = {};
@@ -159,7 +165,7 @@ router.get("/stats/worker/:workerId", async (req, res): Promise<void> => {
     submittedDaysThisWeek,
     daysPerWeek: worker.daysPerWeek,
     streakDays,
-    topWorksite: topWorksiteId ?? null,
+    topWorksite: topWorksiteName,
     topTaskType: topTaskType ?? null,
     missedYesterday: !!missedYesterday,
     recentEntries,
