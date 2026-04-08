@@ -37,13 +37,12 @@ export default function WorkerDashboard() {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      
       {stats.missedYesterday && (
         <motion.div variants={item} className="bg-warning/10 border-2 border-warning/30 rounded-2xl p-5 flex items-start gap-4">
           <AlertCircle className="w-6 h-6 text-warning shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="text-warning font-bold text-lg">Did you forget to submit yesterday?</h3>
-            <p className="text-warning-foreground/80 mt-1">We noticed you didn't log any hours yesterday. Keep your timesheet up to date!</p>
+            <p className="mt-1 text-[#ffffff]">We noticed you didn't log any hours yesterday. Keep your timesheet up to date!</p>
           </div>
           <Link href="/log-time">
             <Button variant="outline" className="bg-warning text-warning-foreground border-warning hover:bg-warning/80">
@@ -52,7 +51,6 @@ export default function WorkerDashboard() {
           </Link>
         </motion.div>
       )}
-
       <motion.div variants={item} className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-card to-secondary border border-border p-8 shadow-xl">
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <HardHatBg className="w-64 h-64 text-primary" />
@@ -67,7 +65,6 @@ export default function WorkerDashboard() {
           </p>
         </div>
       </motion.div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div variants={item}>
           <Card className="h-full bg-card hover:border-primary/50 transition-colors">
@@ -124,7 +121,6 @@ export default function WorkerDashboard() {
           </Card>
         </motion.div>
       </div>
-
       <motion.div variants={item} className="pt-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-display font-bold">Recent Entries</h2>
