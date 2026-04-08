@@ -6,6 +6,7 @@ import {
   useListWorksites,
   useUpdateJob,
   useCreateJobMilestone,
+  useCreateJob,
   getListJobMilestonesQueryKey,
   getListJobsQueryKey,
 } from '@workspace/api-client-react';
@@ -15,10 +16,12 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Briefcase, Clock, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Pencil, Plus, Save } from 'lucide-react';
+import { Briefcase, Clock, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Pencil, Plus, Save, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 
 function BudgetBar({ used, budgeted }: { used: number; budgeted: number | null | undefined }) {
   if (!budgeted) return <p className="text-xs text-muted-foreground italic">No budget set — click Edit to configure</p>;
@@ -274,9 +277,45 @@ function JobCard({ job, worksiteMap }: { job: Job; worksiteMap: Record<number, s
 }
 
 export default function ManagerJobs() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { data: jobs = [], isLoading } = useListJobs();
   const { data: worksites = [] } = useListWorksites();
   const worksiteMap = Object.fromEntries(worksites.map(w => [w.id, w.name]));
+  const createJob = useCreateJob();
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newWorksiteId, setNewWorksiteId] = useState('');
+  const [newBudgetHours, setNewBudgetHours] = useState('');
+  const [newDeadline, setNewDeadline] = useState('');
+  const [newStatus, setNewStatus] = useState('active');
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || !newWorksiteId) return;
+    try {
+      await createJob.mutateAsync({
+        data: {
+          name: newName.trim(),
+          worksiteId: parseInt(newWorksiteId),
+          budgetedHours: newBudgetHours ? parseFloat(newBudgetHours) : null,
+          deadline: newDeadline || null,
+          status: newStatus,
+        },
+      });
+      queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+      toast({ title: 'Job created', description: `"${newName.trim()}" has been added.` });
+      setShowCreate(false);
+      setNewName('');
+      setNewWorksiteId('');
+      setNewBudgetHours('');
+      setNewDeadline('');
+      setNewStatus('active');
+    } catch {
+      toast({ title: 'Error', description: 'Could not create job.', variant: 'destructive' });
+    }
+  };
 
   const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } };
   const item = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } };
@@ -284,11 +323,130 @@ export default function ManagerJobs() {
   const activeJobs = jobs.filter(j => j.status === 'active');
   const otherJobs = jobs.filter(j => j.status !== 'active');
 
+  const selectCls = "flex h-10 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all";
+
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
       <motion.div variants={item}>
-        <h1 className="text-2xl font-bold">Jobs & Budgets</h1>
-        <p className="text-muted-foreground text-sm mt-1">Configure budgets and milestones for each job. Click the pencil icon to edit.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Jobs & Budgets</h1>
+            <p className="text-muted-foreground text-sm mt-1">Configure budgets and milestones for each job. Click the pencil icon to edit.</p>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setShowCreate(v => !v)}
+            className={cn(
+              "rounded-full w-9 h-9 p-0 transition-all",
+              showCreate ? "bg-secondary text-foreground hover:bg-secondary/80" : "bg-primary text-primary-foreground"
+            )}
+            aria-label="Create new job"
+          >
+            {showCreate ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          </Button>
+        </div>
+
+        {/* Create job inline form */}
+        <AnimatePresence initial={false}>
+          {showCreate && (
+            <motion.form
+              key="create-form"
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.22, ease: 'easeInOut' }}
+              onSubmit={handleCreate}
+              className="overflow-hidden"
+            >
+              <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 space-y-4">
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">New Job</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Job name <span className="text-destructive">*</span></Label>
+                    <Input
+                      placeholder="e.g. Soffit Framing Package"
+                      value={newName}
+                      onChange={e => setNewName(e.target.value)}
+                      required
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>Worksite <span className="text-destructive">*</span></Label>
+                    <select
+                      className={selectCls}
+                      value={newWorksiteId}
+                      onChange={e => setNewWorksiteId(e.target.value)}
+                      required
+                    >
+                      <option value="" disabled>Select worksite…</option>
+                      {worksites.map(w => (
+                        <option key={w.id} value={w.id}>{w.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>Budget hours</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      placeholder="e.g. 400"
+                      value={newBudgetHours}
+                      onChange={e => setNewBudgetHours(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>Deadline</Label>
+                    <Input
+                      type="date"
+                      value={newDeadline}
+                      onChange={e => setNewDeadline(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>Status</Label>
+                    <div className="flex gap-2">
+                      {['active', 'on_hold', 'completed'].map(s => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setNewStatus(s)}
+                          className={cn(
+                            "flex-1 py-1.5 text-xs font-semibold rounded-lg border transition-all",
+                            newStatus === s
+                              ? s === 'active' ? "bg-success/20 text-success border-success/40"
+                                : s === 'on_hold' ? "bg-warning/20 text-warning border-warning/40"
+                                : "bg-secondary text-foreground border-border"
+                              : "bg-transparent text-muted-foreground border-border/50 hover:border-border"
+                          )}
+                        >
+                          {s === 'on_hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-1">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowCreate(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" size="sm" disabled={createJob.isPending} className="bg-primary">
+                    {createJob.isPending ? 'Creating…' : (
+                      <><Plus className="w-4 h-4 mr-1.5" /> Create Job</>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </motion.form>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {isLoading && (
