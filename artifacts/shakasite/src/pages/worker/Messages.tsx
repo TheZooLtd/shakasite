@@ -57,6 +57,7 @@ function MessageCard({ msg, myId, allWorkers, onThumbsUp }: {
 }) {
   const isIncoming = msg.toWorkerId === myId;
   const otherPerson = allWorkers.find(w => w.id === (isIncoming ? msg.fromWorkerId : msg.toWorkerId));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -95,7 +96,7 @@ function MessageCard({ msg, myId, allWorkers, onThumbsUp }: {
   );
 }
 
-export default function ManagerMessages() {
+export default function WorkerMessages() {
   const { workerId } = useAppContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -146,15 +147,19 @@ export default function ManagerMessages() {
     } catch {}
   };
 
+  const allMessages = [...received, ...sent]
+    .filter((m, i, arr) => arr.findIndex(x => x.id === m.id) === i)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
   const inboxMessages = received.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const sentMessages = sent.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const unreadCount = received.filter(m => !m.isRead).length;
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-2xl">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-2xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold">Messages</h1>
-        <p className="text-muted-foreground text-sm mt-1">Send messages to your foremen and workers.</p>
+        <p className="text-muted-foreground text-sm mt-1">Communicate with your team.</p>
       </div>
 
       {/* Tab bar */}

@@ -10,6 +10,7 @@ import WorkerDashboard from "@/pages/worker/Dashboard";
 import WorkerLogTime from "@/pages/worker/LogTime";
 import WorkerMyTimesheets from "@/pages/worker/MyTimesheets";
 import WorkerSettings from "@/pages/worker/Settings";
+import WorkerMessages from "@/pages/worker/Messages";
 import ManagerDashboard from "@/pages/manager/Dashboard";
 import ManagerTimesheets from "@/pages/manager/Timesheets";
 import ManagerJobs from "@/pages/manager/Jobs";
@@ -35,6 +36,7 @@ function ProtectedRoutes() {
             <Route path="/" component={WorkerDashboard} />
             <Route path="/log-time" component={WorkerLogTime} />
             <Route path="/my-timesheets" component={WorkerMyTimesheets} />
+            <Route path="/messages" component={WorkerMessages} />
             <Route path="/settings" component={WorkerSettings} />
           </>
         ) : (

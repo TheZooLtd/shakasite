@@ -417,6 +417,8 @@ export const ListMessagesResponseItem = zod.object({
   fromWorkerId: zod.number(),
   toWorkerId: zod.number(),
   body: zod.string(),
+  priority: zod.string(),
+  thumbsUpBy: zod.string(),
   isRead: zod.boolean(),
   createdAt: zod.date(),
 });
@@ -429,6 +431,7 @@ export const SendMessageBody = zod.object({
   fromWorkerId: zod.number(),
   toWorkerId: zod.number(),
   body: zod.string(),
+  priority: zod.string().optional(),
 });
 
 /**

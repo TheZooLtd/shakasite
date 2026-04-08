@@ -26,6 +26,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { name: 'Dashboard', path: '/', icon: Home },
     { name: 'Log Time', path: '/log-time', icon: Clock },
     { name: 'My Timesheets', path: '/my-timesheets', icon: History },
+    { name: 'Messages', path: '/messages', icon: MessageSquare },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
 

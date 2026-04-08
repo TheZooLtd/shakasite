@@ -226,6 +226,8 @@ export interface Message {
   fromWorkerId: number;
   toWorkerId: number;
   body: string;
+  priority: string;
+  thumbsUpBy: string;
   isRead: boolean;
   createdAt: string;
 }
@@ -234,6 +236,7 @@ export interface SendMessageBody {
   fromWorkerId: number;
   toWorkerId: number;
   body: string;
+  priority?: string;
 }
 
 export interface ExportTimesheetBody {

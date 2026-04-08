@@ -7,6 +7,8 @@ export const messagesTable = pgTable("messages", {
   fromWorkerId: integer("from_worker_id").notNull(),
   toWorkerId: integer("to_worker_id").notNull(),
   body: text("body").notNull(),
+  priority: text("priority").notNull().default("normal"), // normal | high | urgent
+  thumbsUpBy: text("thumbs_up_by").notNull().default("[]"), // JSON array of worker IDs
   isRead: boolean("is_read").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
