@@ -69,17 +69,57 @@ export interface CreateWorksiteBody {
   isActive: boolean;
 }
 
+export interface Client {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface CreateClientBody {
+  name: string;
+}
+
+export interface JobCodeCategory {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface CreateJobCodeCategoryBody {
+  name: string;
+}
+
+export interface JobCode {
+  id: number;
+  categoryId: number;
+  code: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface CreateJobCodeBody {
+  categoryId: number;
+  code: string;
+  name: string;
+}
+
 export interface Job {
   id: number;
   name: string;
   worksiteId: number;
   /** @nullable */
+  clientId?: number | null;
+  /** @nullable */
   budgetedHours?: number | null;
   hoursUsed: number;
+  /** @nullable */
+  startDate?: string | null;
   /** @nullable */
   deadline?: string | null;
   /** active, completed, on_hold */
   status: string;
+  assignedWorkerIds?: string;
+  codeBudget?: string;
   createdAt: string;
 }
 
@@ -112,21 +152,35 @@ export interface CreateJobBody {
   name: string;
   worksiteId: number;
   /** @nullable */
+  clientId?: number | null;
+  /** @nullable */
   budgetedHours?: number | null;
+  /** @nullable */
+  startDate?: string | null;
   /** @nullable */
   deadline?: string | null;
   status?: string;
+  assignedWorkerIds?: string;
+  codeBudget?: string;
 }
 
 export interface UpdateJobBody {
   /** @nullable */
   name?: string | null;
   /** @nullable */
+  clientId?: number | null;
+  /** @nullable */
   budgetedHours?: number | null;
+  /** @nullable */
+  startDate?: string | null;
   /** @nullable */
   deadline?: string | null;
   /** @nullable */
   status?: string | null;
+  /** @nullable */
+  assignedWorkerIds?: string | null;
+  /** @nullable */
+  codeBudget?: string | null;
 }
 
 export interface CreateMilestoneBody {

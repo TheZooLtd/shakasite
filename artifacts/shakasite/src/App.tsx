@@ -16,6 +16,8 @@ import ManagerTimesheets from "@/pages/manager/Timesheets";
 import ManagerJobs from "@/pages/manager/Jobs";
 import ManagerMessages from "@/pages/manager/Messages";
 import ManagerExport from "@/pages/manager/Export";
+import JobCodesPage from "@/pages/manager/JobCodes";
+import WorkersPage from "@/pages/manager/Workers";
 import NotFound from "@/pages/not-found";
 import { AppLayout } from "./components/layout/AppLayout";
 
@@ -44,7 +46,9 @@ function ProtectedRoutes() {
             <Route path="/" component={ManagerDashboard} />
             <Route path="/team-timesheets" component={ManagerTimesheets} />
             <Route path="/jobs" component={ManagerJobs} />
+            <Route path="/workers" component={WorkersPage} />
             <Route path="/messages" component={ManagerMessages} />
+            <Route path="/job-codes" component={JobCodesPage} />
             <Route path="/export" component={ManagerExport} />
           </>
         )}

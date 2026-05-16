@@ -111,10 +111,14 @@ export const ListJobsResponseItem = zod.object({
   id: zod.number(),
   name: zod.string(),
   worksiteId: zod.number(),
+  clientId: zod.number().nullish(),
   budgetedHours: zod.number().nullish(),
   hoursUsed: zod.number(),
+  startDate: zod.string().nullish(),
   deadline: zod.date().nullish(),
   status: zod.string().describe("active, completed, on_hold"),
+  assignedWorkerIds: zod.string().optional(),
+  codeBudget: zod.string().optional(),
   createdAt: zod.date(),
 });
 export const ListJobsResponse = zod.array(ListJobsResponseItem);
@@ -125,9 +129,13 @@ export const ListJobsResponse = zod.array(ListJobsResponseItem);
 export const CreateJobBody = zod.object({
   name: zod.string(),
   worksiteId: zod.number(),
+  clientId: zod.number().nullish(),
   budgetedHours: zod.number().nullish(),
+  startDate: zod.string().nullish(),
   deadline: zod.date().nullish(),
   status: zod.string().optional(),
+  assignedWorkerIds: zod.string().optional(),
+  codeBudget: zod.string().optional(),
 });
 
 /**
@@ -167,19 +175,27 @@ export const UpdateJobParams = zod.object({
 
 export const UpdateJobBody = zod.object({
   name: zod.string().nullish(),
+  clientId: zod.number().nullish(),
   budgetedHours: zod.number().nullish(),
+  startDate: zod.string().nullish(),
   deadline: zod.date().nullish(),
   status: zod.string().nullish(),
+  assignedWorkerIds: zod.string().nullish(),
+  codeBudget: zod.string().nullish(),
 });
 
 export const UpdateJobResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
   worksiteId: zod.number(),
+  clientId: zod.number().nullish(),
   budgetedHours: zod.number().nullish(),
   hoursUsed: zod.number(),
+  startDate: zod.string().nullish(),
   deadline: zod.date().nullish(),
   status: zod.string().describe("active, completed, on_hold"),
+  assignedWorkerIds: zod.string().optional(),
+  codeBudget: zod.string().optional(),
   createdAt: zod.date(),
 });
 
@@ -524,4 +540,67 @@ export const GetManagerStatsResponse = zod.object({
 export const SeedDataResponse = zod.object({
   message: zod.string(),
   seeded: zod.boolean(),
+});
+
+/**
+ * @summary List all clients
+ */
+export const ListClientsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  createdAt: zod.date(),
+});
+export const ListClientsResponse = zod.array(ListClientsResponseItem);
+
+/**
+ * @summary Create a client
+ */
+export const CreateClientBody = zod.object({
+  name: zod.string(),
+});
+
+/**
+ * @summary List job code categories
+ */
+export const ListJobCodeCategoriesResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  createdAt: zod.date(),
+});
+export const ListJobCodeCategoriesResponse = zod.array(ListJobCodeCategoriesResponseItem);
+
+/**
+ * @summary Create a job code category
+ */
+export const CreateJobCodeCategoryBody = zod.object({
+  name: zod.string(),
+});
+
+export const DeleteJobCodeCategoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List job codes
+ */
+export const ListJobCodesResponseItem = zod.object({
+  id: zod.number(),
+  categoryId: zod.number(),
+  code: zod.string(),
+  name: zod.string(),
+  createdAt: zod.date(),
+});
+export const ListJobCodesResponse = zod.array(ListJobCodesResponseItem);
+
+/**
+ * @summary Create a job code
+ */
+export const CreateJobCodeBody = zod.object({
+  categoryId: zod.number(),
+  code: zod.string(),
+  name: zod.string(),
+});
+
+export const DeleteJobCodeParams = zod.object({
+  id: zod.coerce.number(),
 });

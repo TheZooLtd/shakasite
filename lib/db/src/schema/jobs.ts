@@ -6,10 +6,14 @@ export const jobsTable = pgTable("jobs", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   worksiteId: integer("worksite_id").notNull(),
+  clientId: integer("client_id"),
   budgetedHours: real("budgeted_hours"),
   hoursUsed: real("hours_used").notNull().default(0),
+  startDate: text("start_date"),
   deadline: timestamp("deadline", { withTimezone: true }),
   status: text("status").notNull().default("active"),
+  assignedWorkerIds: text("assigned_worker_ids").notNull().default("[]"),
+  codeBudget: text("code_budget").notNull().default("{}"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

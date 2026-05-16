@@ -13,12 +13,14 @@ import {
   Briefcase, 
   MessageSquare, 
   Download,
-  HardHat
+  HardHat,
+  Tag,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const { role, logout, workerId } = useAppContext();
+  const { role, logout } = useAppContext();
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -34,15 +36,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { name: 'Dashboard', path: '/', icon: Home },
     { name: 'Team Timesheets', path: '/team-timesheets', icon: History },
     { name: 'Jobs & Budgets', path: '/jobs', icon: Briefcase },
+    { name: 'Workers', path: '/workers', icon: Users },
     { name: 'Messages', path: '/messages', icon: MessageSquare },
+    { name: 'Job Codes', path: '/job-codes', icon: Tag },
     { name: 'Export', path: '/export', icon: Download },
   ];
 
   const navItems = role === 'manager' ? managerNav : workerNav;
-
-  const handleLogout = () => {
-    logout();
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex overflow-hidden">
@@ -62,7 +62,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = location === item.path;
             return (
@@ -73,7 +73,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     ? "bg-primary/10 text-primary font-semibold" 
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 )}>
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-5 h-5 shrink-0" />
                   {item.name}
                 </div>
               </Link>
@@ -83,7 +83,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="p-4 border-t border-border">
           <button 
-            onClick={handleLogout}
+            onClick={logout}
             className="flex w-full items-center gap-3 px-4 py-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
           >
             <LogOut className="w-5 h-5" />
@@ -115,7 +115,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </main>
 
-        {/* Mobile Bottom Nav */}
+        {/* Mobile Bottom Nav — first 4 items */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around p-2 pb-safe z-30">
           {navItems.slice(0, 4).map((item) => {
              const isActive = location === item.path;
@@ -182,7 +182,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </nav>
               <div className="p-6 border-t border-border">
                 <button 
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="flex w-full justify-center items-center gap-2 px-4 py-3 bg-destructive/10 text-destructive font-bold rounded-xl transition-colors"
                 >
                   <LogOut className="w-5 h-5" />

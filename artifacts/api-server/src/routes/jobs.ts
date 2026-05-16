@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db, jobsTable, milestonesTable, worksitesTable, timesheetEntriesTable } from "@workspace/db";
 import {
   ListJobsResponse,
@@ -23,14 +23,23 @@ router.get("/jobs", async (_req, res): Promise<void> => {
 });
 
 router.post("/jobs", async (req, res): Promise<void> => {
-  const parsed = CreateJobBody.safeParse(req.body);
+  const body = { ...req.body };
+  if (typeof body.deadline === 'string' && body.deadline) body.deadline = new Date(body.deadline);
+  const parsed = CreateJobBody.safeParse(body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
   const [job] = await db.insert(jobsTable).values({
-    ...parsed.data,
+    name: parsed.data.name,
+    worksiteId: parsed.data.worksiteId,
+    clientId: parsed.data.clientId ?? null,
+    budgetedHours: parsed.data.budgetedHours ?? null,
+    startDate: parsed.data.startDate ?? null,
+    deadline: parsed.data.deadline ?? null,
     status: parsed.data.status ?? "active",
+    assignedWorkerIds: parsed.data.assignedWorkerIds ?? "[]",
+    codeBudget: parsed.data.codeBudget ?? "{}",
     hoursUsed: 0,
   }).returning();
   res.status(201).json(job);
@@ -69,9 +78,13 @@ router.patch("/jobs/:id", async (req, res): Promise<void> => {
   }
   const updates: Record<string, unknown> = {};
   if (parsed.data.name !== null && parsed.data.name !== undefined) updates.name = parsed.data.name;
+  if (parsed.data.clientId !== undefined) updates.clientId = parsed.data.clientId;
   if (parsed.data.budgetedHours !== undefined) updates.budgetedHours = parsed.data.budgetedHours;
+  if (parsed.data.startDate !== undefined) updates.startDate = parsed.data.startDate;
   if (parsed.data.deadline !== undefined) updates.deadline = parsed.data.deadline;
   if (parsed.data.status !== null && parsed.data.status !== undefined) updates.status = parsed.data.status;
+  if (parsed.data.assignedWorkerIds !== undefined) updates.assignedWorkerIds = parsed.data.assignedWorkerIds;
+  if (parsed.data.codeBudget !== undefined) updates.codeBudget = parsed.data.codeBudget;
   const [job] = await db.update(jobsTable).set(updates).where(eq(jobsTable.id, params.data.id)).returning();
   if (!job) {
     res.status(404).json({ error: "Job not found" });
