@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "RJ-ahBui9c2EmXCvMBfJw"
+uri = "file://shakasite-export.tar.gz"
+type = "unspecified"
+title = "ShakaSite — GitHub Export"
