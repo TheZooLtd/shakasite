@@ -1,0 +1,13 @@
+[build]
+  command = "cd artifacts/shakasite && pnpm install && pnpm build"
+  publish = "artifacts/shakasite/dist/public"
+
+[build.environment]
+  PORT = "3000"
+  BASE_PATH = "/"
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
